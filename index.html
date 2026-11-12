@@ -1,0 +1,1227 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>С днём рождения!</title>
+    <style>
+      :root {
+        --w: min(340px, 86vw);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        overflow-x: hidden;
+      }
+
+      body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        color: #fff;
+        background: radial-gradient(
+          ellipse at 50% 40%,
+          #2f8a63 0%,
+          #1b5e43 55%,
+          #0d3626 100%
+        );
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .stage {
+        position: relative;
+        z-index: 2;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+        padding: 40px 16px 116px;
+        pointer-events: none;
+      }
+
+      .greeting {
+        margin: 0;
+        text-align: center;
+        font-size: clamp(28px, 6vw, 56px);
+        font-weight: 800;
+        line-height: 1.05;
+        text-shadow: 0 3px 14px rgba(0, 0, 0, 0.35);
+      }
+
+      .sub {
+        margin: 10px 0 0;
+        text-align: center;
+        font-size: clamp(14px, 2.4vw, 18px);
+        opacity: 0.88;
+      }
+
+      .lock {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        width: min(360px, 90vw);
+        pointer-events: auto;
+      }
+
+      .lock__row {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .lock__input {
+        flex: 1;
+        min-width: 0;
+        padding: 14px 16px;
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.25);
+        color: #fff;
+        font:
+          600 18px system-ui,
+          sans-serif;
+        outline: none;
+      }
+
+      .lock__input:focus {
+        border-color: #fbb615;
+      }
+
+      .lock__button {
+        padding: 14px 18px;
+        border: 0;
+        border-radius: 14px;
+        background: #fbb615;
+        color: #111;
+        font:
+          800 16px system-ui,
+          sans-serif;
+        cursor: pointer;
+      }
+
+      .lock__button:disabled {
+        opacity: 0.6;
+      }
+
+      .lock__error {
+        min-height: 20px;
+        margin: 0;
+        font-size: 14px;
+        color: #ffd0c4;
+      }
+
+      .lock.is-wrong .lock__row {
+        animation: wrong 0.4s;
+      }
+
+      @keyframes wrong {
+        0%,
+        100% {
+          transform: none;
+        }
+
+        25% {
+          transform: translateX(-8px);
+        }
+
+        75% {
+          transform: translateX(8px);
+        }
+      }
+
+      body:not(.locked) .lock {
+        display: none;
+      }
+
+      body.locked .cards,
+      body.locked .die,
+      body.locked .meeple {
+        display: none;
+      }
+
+      .cards {
+        display: flex;
+        gap: 36px;
+        justify-content: center;
+      }
+
+      .slot {
+        position: relative;
+        font-size: calc(var(--w) / 21.25);
+      }
+
+      .slot_a {
+        rotate: -4deg;
+      }
+
+      .slot_b {
+        rotate: 3deg;
+      }
+
+      .card {
+        width: var(--w);
+        aspect-ratio: 8 / 5;
+        perspective: 900px;
+        pointer-events: auto;
+        color: #111;
+        --rx: 0deg;
+        --ry: 0deg;
+      }
+
+      .tilt,
+      .flip {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+      }
+
+      .tilt {
+        transform: rotateX(var(--rx)) rotateY(var(--ry));
+        transition: transform 0.35s ease-out;
+      }
+
+      .card.is-tilting .tilt {
+        transition-duration: 0.06s;
+      }
+
+      .face {
+        position: absolute;
+        inset: 0;
+        border-radius: 1.1em;
+        overflow: hidden;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+      }
+
+      .face_back {
+        transform: rotateY(180deg);
+        border: 0.4em solid #fff;
+        background: repeating-linear-gradient(
+          45deg,
+          #7b1e2b 0 0.5em,
+          #932a3a 0.5em 1em
+        );
+      }
+
+      .games {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 1em 1.2em;
+        background: #fbb615;
+      }
+
+      .hexlogo {
+        font-size: 0.74em;
+        font-weight: 800;
+      }
+
+      .hexrow {
+        display: flex;
+        gap: 0.1em;
+      }
+
+      .hexrow + .hexrow {
+        margin-top: -0.3em;
+        margin-left: 0.62em;
+      }
+
+      .hex {
+        display: grid;
+        place-items: center;
+        width: 1.15em;
+        height: 1.32em;
+        clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+        background: #111;
+        color: #fff;
+        line-height: 1;
+      }
+
+      .hex_accent {
+        color: #fbb615;
+      }
+
+      .games__label {
+        font-size: 0.6em;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        line-height: 1.35;
+      }
+
+      .games__amount {
+        font-size: 2.3em;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .mascot {
+        position: absolute;
+        right: 0.5em;
+        bottom: -0.2em;
+        height: 78%;
+      }
+
+      .tea {
+        padding: 0.65em;
+        background: #a1383c;
+      }
+
+      .tea__inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.28em;
+        height: 100%;
+        border: 0.28em solid #f7c873;
+        background: #fff;
+        text-align: center;
+      }
+
+      .tea__knot {
+        width: 2.6em;
+        height: 0.9em;
+      }
+
+      .tea__title {
+        font-size: 1.5em;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        line-height: 1;
+      }
+
+      .tea__kind {
+        font-size: 0.5em;
+        font-weight: 700;
+        letter-spacing: 0.3em;
+      }
+
+      .tea__what {
+        margin-top: 0.5em;
+        font-size: 0.62em;
+        font-weight: 300;
+        letter-spacing: 0.04em;
+      }
+
+      .tea__line {
+        width: 46%;
+        height: 0.14em;
+        background: #f7c873;
+      }
+
+      .tea__hint {
+        font-size: 0.5em;
+        letter-spacing: 0.12em;
+      }
+
+      .tea__contacts {
+        display: flex;
+        justify-content: space-between;
+        gap: 1em;
+        width: 100%;
+        margin-top: 0.4em;
+        padding: 0 1.4em;
+        font-size: 0.64em;
+      }
+
+      .tea__contacts a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .code {
+        align-self: flex-start;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        max-width: 100%;
+        padding: 0.35em 0.7em;
+        border: 1px dashed currentColor;
+        border-radius: 0.5em;
+        background: rgba(255, 255, 255, 0.6);
+        color: #111;
+        font:
+          700 0.78em ui-monospace,
+          "SF Mono",
+          Menlo,
+          Consolas,
+          monospace;
+        cursor: pointer;
+      }
+
+      .tea .code {
+        align-self: center;
+      }
+
+      .code svg {
+        flex: none;
+        width: 1em;
+        height: 1em;
+      }
+
+      .decor {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      .deck {
+        position: absolute;
+        top: 74px;
+        right: -34px;
+        width: 120px;
+        height: 76px;
+        rotate: 14deg;
+      }
+
+      .deck i {
+        position: absolute;
+        inset: 0;
+        border: 4px solid #fff;
+        border-radius: 10px;
+        background: repeating-linear-gradient(
+          45deg,
+          #7b1e2b 0 7px,
+          #932a3a 7px 14px
+        );
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+      }
+
+      .deck i:nth-child(2) {
+        translate: -3px -3px;
+      }
+
+      .deck i:nth-child(3) {
+        translate: -6px -6px;
+      }
+
+      .die {
+        position: absolute;
+        bottom: 28px;
+        display: grid;
+        grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+        gap: 2px;
+        width: 46px;
+        height: 46px;
+        padding: 7px;
+        border-radius: 9px;
+        background: #fff;
+        box-shadow:
+          inset 0 -4px 0 rgba(0, 0, 0, 0.12),
+          0 6px 10px rgba(0, 0, 0, 0.35);
+        cursor: pointer;
+        pointer-events: auto;
+        transform: rotate(var(--r));
+      }
+
+      .die i {
+        border-radius: 50%;
+      }
+
+      .die i.on {
+        background: #1b1b1b;
+      }
+
+      .meeple {
+        position: absolute;
+        bottom: 26px;
+        width: 38px;
+        height: 38px;
+        fill: var(--c);
+        filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.35));
+      }
+
+      .cup {
+        position: absolute;
+        right: 14px;
+        bottom: 16px;
+        width: clamp(72px, 12vw, 116px);
+        color: rgba(255, 255, 255, 0.75);
+      }
+
+      .steam path {
+        stroke-dasharray: 100;
+        stroke-dashoffset: 100;
+        animation: steam 3.2s ease-in-out infinite;
+      }
+
+      .steam path:nth-child(2) {
+        animation-delay: 0.9s;
+      }
+
+      .steam path:nth-child(3) {
+        animation-delay: 1.7s;
+      }
+
+      .toast {
+        position: fixed;
+        z-index: 11;
+        left: 50%;
+        bottom: 22px;
+        transform: translate(-50%, 20px);
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        font-size: 14px;
+        opacity: 0;
+        transition:
+          opacity 0.2s,
+          transform 0.2s;
+        pointer-events: none;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+
+      #confetti {
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      body.play .greeting {
+        animation: rise 0.7s both;
+      }
+
+      body.play .sub {
+        animation: rise 0.7s 2.1s both;
+      }
+
+      body.play .slot {
+        animation: deal 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+      }
+
+      body.play .slot_a {
+        animation-delay: 0.3s;
+      }
+
+      body.play .slot_b {
+        animation-delay: 0.8s;
+      }
+
+      body.play .flip {
+        animation: flip 0.6s ease-in-out backwards;
+      }
+
+      body.play .slot_a .flip {
+        animation-delay: 0.95s;
+      }
+
+      body.play .slot_b .flip {
+        animation-delay: 1.45s;
+      }
+
+      body.play .die {
+        animation: rollIn 1.1s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+        animation-delay: var(--d);
+      }
+
+      body.play .die.settled {
+        animation: none;
+      }
+
+      body.play .die.settled.rolling {
+        animation: spin 0.5s ease-out;
+      }
+
+      body.play .meeple {
+        animation:
+          pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both,
+          hop 2.6s ease-in-out infinite;
+        animation-delay: calc(1.9s + var(--d)), calc(3.2s + var(--d) * 4);
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      @keyframes deal {
+        from {
+          opacity: 0;
+          transform: translate(45vw, -60vh) rotate(60deg) scale(0.6);
+        }
+
+        15% {
+          opacity: 1;
+        }
+
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      @keyframes flip {
+        from {
+          transform: rotateY(180deg);
+        }
+
+        to {
+          transform: rotateY(0deg);
+        }
+      }
+
+      @keyframes rollIn {
+        from {
+          opacity: 0;
+          transform: translate(-60vw, -30vh) rotate(-900deg);
+        }
+
+        20% {
+          opacity: 1;
+        }
+
+        to {
+          opacity: 1;
+          transform: rotate(var(--r));
+        }
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(calc(var(--r) - 720deg)) scale(1.25);
+        }
+
+        to {
+          transform: rotate(var(--r)) scale(1);
+        }
+      }
+
+      @keyframes pop {
+        from {
+          opacity: 0;
+          transform: translateY(20px) scale(0);
+        }
+
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      @keyframes hop {
+        0%,
+        20%,
+        100% {
+          transform: none;
+        }
+
+        10% {
+          transform: translateY(-10px);
+        }
+      }
+
+      @keyframes steam {
+        0% {
+          stroke-dashoffset: 100;
+          opacity: 0;
+        }
+
+        25% {
+          opacity: 1;
+        }
+
+        100% {
+          stroke-dashoffset: -100;
+          opacity: 0;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .cards {
+          flex-direction: column;
+          align-items: center;
+          gap: 30px;
+        }
+
+        .stage {
+          gap: 22px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-delay: 0s !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="locked">
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <symbol id="meeple" viewBox="0 0 100 100">
+        <path
+          d="M50 5C62 5 70 14 70 25C70 30 68 34 66 37C80 41 95 50 95 58C95 64 88 65 80 62L72 59C74 72 82 84 86 92C87 95 85 97 82 97L60 97C58 97 57 96 56 94L50 80L44 94C43 96 42 97 40 97L18 97C15 97 13 95 14 92C18 84 26 72 28 59L20 62C12 65 5 64 5 58C5 50 20 41 34 37C32 34 30 30 30 25C30 14 38 5 50 5Z"
+        />
+      </symbol>
+    </svg>
+
+    <div class="decor" aria-hidden="true">
+      <div class="deck"><i></i><i></i><i></i></div>
+      <div
+        class="die"
+        data-n="6"
+        style="left: 18px; --r: -12deg; --d: 1.6s"
+      ></div>
+      <div
+        class="die"
+        data-n="5"
+        style="left: 74px; --r: 18deg; --d: 1.75s"
+      ></div>
+      <svg class="meeple" style="left: calc(50% - 64px); --c: #e4572e; --d: 0s">
+        <use href="#meeple" />
+      </svg>
+      <svg
+        class="meeple"
+        style="left: calc(50% - 19px); --c: #f7c873; --d: 0.15s"
+      >
+        <use href="#meeple" />
+      </svg>
+      <svg
+        class="meeple"
+        style="left: calc(50% + 26px); --c: #4aa3df; --d: 0.3s"
+      >
+        <use href="#meeple" />
+      </svg>
+      <svg class="cup" viewBox="0 0 120 140">
+        <g
+          class="steam"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="5"
+          stroke-linecap="round"
+        >
+          <path
+            pathLength="100"
+            d="M45 70C35 55 55 45 45 30C38 20 50 12 46 4"
+          />
+          <path
+            pathLength="100"
+            d="M62 70C52 55 72 45 62 30C55 20 67 12 63 4"
+          />
+          <path
+            pathLength="100"
+            d="M79 70C69 55 89 45 79 30C72 20 84 12 80 4"
+          />
+        </g>
+        <path
+          d="M100 88C118 88 118 112 96 112"
+          fill="none"
+          stroke="#a1383c"
+          stroke-width="7"
+        />
+        <path
+          d="M25 80H100C100 115 85 130 62 130C40 130 25 115 25 80Z"
+          fill="#a1383c"
+        />
+        <ellipse cx="62.5" cy="80" rx="37.5" ry="6" fill="#5a2d16" />
+        <rect x="15" y="130" width="95" height="6" rx="3" fill="#f7c873" />
+      </svg>
+    </div>
+
+    <main class="stage">
+      <header>
+        <h1 class="greeting">С днём рождения!</h1>
+        <p class="sub">Введи пароль, и карты раздадутся</p>
+      </header>
+
+      <form class="lock" autocomplete="off">
+        <div class="lock__row">
+          <input
+            id="password"
+            aria-label="Пароль"
+            class="lock__input"
+            type="text"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            enterkeyhint="go"
+            required
+          />
+          <button class="lock__button" type="submit">Открыть</button>
+        </div>
+        <p class="lock__error" role="alert"></p>
+      </form>
+
+      <div class="cards">
+        <div class="slot slot_a">
+          <div class="card">
+            <div class="tilt">
+              <div class="flip">
+                <div class="face games">
+                  <div class="hexlogo" aria-label="Hobby Games">
+                    <div class="hexrow">
+                      <span class="hex hex_accent">H</span
+                      ><span class="hex">O</span><span class="hex">B</span
+                      ><span class="hex">B</span><span class="hex">Y</span>
+                    </div>
+                    <div class="hexrow">
+                      <span class="hex hex_accent">G</span
+                      ><span class="hex">A</span><span class="hex">M</span
+                      ><span class="hex">E</span><span class="hex">S</span>
+                    </div>
+                  </div>
+                  <div class="games__label">
+                    ЭЛЕКТРОННЫЙ<br />ПОДАРОЧНЫЙ СЕРТИФИКАТ
+                  </div>
+                  <div class="games__amount">3 000 ₽</div>
+                  <button
+                    class="code"
+                    type="button"
+                    data-field="games"
+                    data-code="HG-XXXX-XXXX-XXXX"
+                  >
+                    <span>HG-XXXX-XXXX-XXXX</span>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.4"
+                    >
+                      <rect x="9" y="9" width="12" height="12" rx="2" />
+                      <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                    </svg>
+                  </button>
+                  <svg class="mascot" viewBox="0 0 100 120" aria-hidden="true">
+                    <path
+                      d="M38 92C36 104 30 110 22 112M62 92C64 104 70 110 78 112"
+                      fill="none"
+                      stroke="#111"
+                      stroke-width="5"
+                      stroke-linecap="round"
+                    />
+                    <path
+                      d="M80 62C92 58 95 46 90 36"
+                      fill="none"
+                      stroke="#111"
+                      stroke-width="5"
+                      stroke-linecap="round"
+                    />
+                    <rect
+                      x="20"
+                      y="38"
+                      width="60"
+                      height="56"
+                      rx="8"
+                      fill="#111"
+                    />
+                    <rect x="45" y="38" width="10" height="56" fill="#f15a29" />
+                    <rect x="20" y="58" width="60" height="9" fill="#f15a29" />
+                    <path
+                      d="M50 38C38 12 20 22 30 34C36 40 46 38 50 38ZM50 38C62 12 80 22 70 34C64 40 54 38 50 38Z"
+                      fill="none"
+                      stroke="#f15a29"
+                      stroke-width="6"
+                      stroke-linejoin="round"
+                    />
+                    <circle cx="34" cy="50" r="3.5" fill="#fff" />
+                    <circle cx="66" cy="50" r="3.5" fill="#fff" />
+                    <path d="M60 73Q68 86 77 72Z" fill="#fff" />
+                  </svg>
+                </div>
+                <div class="face face_back"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slot slot_b">
+          <div class="card">
+            <div class="tilt">
+              <div class="flip">
+                <div class="face tea">
+                  <div class="tea__inner">
+                    <svg
+                      class="tea__knot"
+                      viewBox="0 0 60 20"
+                      fill="none"
+                      stroke="#111"
+                      stroke-width="2.6"
+                    >
+                      <path
+                        d="M30 10C24 2 12 2 12 10C12 18 24 18 30 10C36 2 48 2 48 10C48 18 36 18 30 10Z"
+                      />
+                    </svg>
+                    <div class="tea__title">ЧАЙНАЯ СТУДИЯ</div>
+                    <div class="tea__kind">ПОДАРОЧНЫЙ СЕРТИФИКАТ</div>
+                    <div class="tea__what">
+                      ЧАЕПИТИЕ С МАСТЕРОМ НА ДВЕ ПЕРСОНЫ
+                    </div>
+                    <div class="tea__line"></div>
+                    <div class="tea__hint">номер сертификата</div>
+                    <button
+                      class="code"
+                      type="button"
+                      data-field="tea"
+                      data-code="000000"
+                    >
+                      <span>000000</span>
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.4"
+                      >
+                        <rect x="9" y="9" width="12" height="12" rx="2" />
+                        <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                      </svg>
+                    </button>
+                    <div class="tea__contacts">
+                      <span>7-я линия В.О. 34</span>
+                      <a href="tel:+79990267497">+7-999-026-74-97</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="face face_back"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <canvas id="confetti" aria-hidden="true"></canvas>
+    <div class="toast" role="status"></div>
+
+    <script>
+      const PAYLOAD =
+        "f/lnmsHXPMKRhYTZxjtbRoyzQ+riJ1lXTxpdmjWm0F942BEsoiPgIHHDBe4sT4GGo7mitIicYMVXCDoZ4gvvLawUoxB2EKJbm/acB2Sq4SvuffmPnWH9di1Nu2wySCjyTXzPbNB+u6IerMKysg==";
+      const PBKDF2_ITERATIONS = 600000;
+      const SALT_BYTES = 16;
+      const IV_BYTES = 12;
+      const UNLOCKED_SUBTITLE = "Твой ход. Обе карты уже твои";
+      const WRONG_PASSWORD = "Не подошло. Попробуй ещё раз";
+      const OPENING = "Открываю…";
+      const OPEN = "Открыть";
+      const CONFETTI_COLORS = [
+        "#fbb615",
+        "#f15a29",
+        "#ffffff",
+        "#a1383c",
+        "#4aa3df",
+      ];
+      const CONFETTI_DELAY_MS = 2100;
+      const CONFETTI_COUNT = 150;
+      const CONFETTI_LIFE = 240;
+      const CONFETTI_GRAVITY = 0.45;
+      const PIPS = {
+        1: [4],
+        2: [0, 8],
+        3: [0, 4, 8],
+        4: [0, 2, 6, 8],
+        5: [0, 2, 4, 6, 8],
+        6: [0, 2, 3, 5, 6, 8],
+      };
+      const DIE_CELLS = 9;
+      const DIE_FACES = 6;
+      const TILT_Y_DEG = 24;
+      const TILT_X_DEG = 18;
+      const TOAST_MS = 1600;
+
+      const body = document.body;
+      const sub = document.querySelector(".sub");
+      const lock = document.querySelector(".lock");
+      const passwordInput = document.querySelector(".lock__input");
+      const lockButton = document.querySelector(".lock__button");
+      const lockError = document.querySelector(".lock__error");
+      const toast = document.querySelector(".toast");
+      const canvas = document.getElementById("confetti");
+      const ctx = canvas.getContext("2d");
+      const dice = document.querySelectorAll(".die");
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
+      let particles = [];
+      let frame = 0;
+      let toastTimer = 0;
+
+      function normalizePassword(value) {
+        return value
+          .normalize("NFC")
+          .trim()
+          .toLowerCase()
+          .replace(/ё/g, "е")
+          .replace(/\s+/g, " ");
+      }
+
+      function decodeBase64(value) {
+        return Uint8Array.from(atob(value), (char) => char.charCodeAt(0));
+      }
+
+      async function decryptPayload(password) {
+        const bytes = decodeBase64(PAYLOAD);
+        const salt = bytes.slice(0, SALT_BYTES);
+        const iv = bytes.slice(SALT_BYTES, SALT_BYTES + IV_BYTES);
+        const data = bytes.slice(SALT_BYTES + IV_BYTES);
+        const material = await crypto.subtle.importKey(
+          "raw",
+          new TextEncoder().encode(password),
+          "PBKDF2",
+          false,
+          ["deriveKey"],
+        );
+        const key = await crypto.subtle.deriveKey(
+          {
+            name: "PBKDF2",
+            salt,
+            iterations: PBKDF2_ITERATIONS,
+            hash: "SHA-256",
+          },
+          material,
+          { name: "AES-GCM", length: 256 },
+          false,
+          ["decrypt"],
+        );
+        const plain = await crypto.subtle.decrypt(
+          { name: "AES-GCM", iv },
+          key,
+          data,
+        );
+
+        return JSON.parse(new TextDecoder().decode(plain));
+      }
+
+      function fillCodes(codes) {
+        for (const [field, code] of Object.entries(codes)) {
+          const button = document.querySelector(`.code[data-field="${field}"]`);
+
+          if (button) {
+            button.dataset.code = code;
+            button.querySelector("span").textContent = code;
+          }
+        }
+      }
+
+      function fitCanvas() {
+        canvas.width = window.innerWidth * window.devicePixelRatio;
+        canvas.height = window.innerHeight * window.devicePixelRatio;
+      }
+
+      function drawConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles = particles.filter(
+          (p) => p.y < canvas.height + 40 && p.life < CONFETTI_LIFE,
+        );
+
+        for (const p of particles) {
+          p.vy += CONFETTI_GRAVITY * window.devicePixelRatio;
+          p.vx *= 0.99;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.angle += p.spin;
+          p.life += 1;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.angle);
+          ctx.globalAlpha = Math.max(0, 1 - p.life / CONFETTI_LIFE);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+          ctx.restore();
+        }
+
+        if (particles.length > 0) {
+          frame = requestAnimationFrame(drawConfetti);
+        }
+      }
+
+      function burst() {
+        const ratio = window.devicePixelRatio;
+
+        fitCanvas();
+        particles = Array.from({ length: CONFETTI_COUNT }, () => ({
+          x: canvas.width / 2,
+          y: canvas.height * 0.45,
+          vx: (Math.random() - 0.5) * 24 * ratio,
+          vy: (-Math.random() * 18 - 4) * ratio,
+          size: (Math.random() * 8 + 5) * ratio,
+          angle: Math.random() * Math.PI * 2,
+          spin: (Math.random() - 0.5) * 0.4,
+          color:
+            CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+          life: 0,
+        }));
+        cancelAnimationFrame(frame);
+        drawConfetti();
+      }
+
+      function reveal() {
+        sub.textContent = UNLOCKED_SUBTITLE;
+        passwordInput.blur();
+        body.classList.remove("locked");
+        void body.offsetWidth;
+        body.classList.add("play");
+
+        if (!reducedMotion) {
+          setTimeout(burst, CONFETTI_DELAY_MS);
+        }
+      }
+
+      function rejectPassword() {
+        lockError.textContent = WRONG_PASSWORD;
+        lock.classList.remove("is-wrong");
+        void lock.offsetWidth;
+        lock.classList.add("is-wrong");
+        passwordInput.select();
+      }
+
+      function setDie(die, value) {
+        die.querySelectorAll("i").forEach((pip, index) => {
+          pip.classList.toggle("on", PIPS[value].includes(index));
+        });
+      }
+
+      function showToast(text) {
+        toast.textContent = text;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), TOAST_MS);
+      }
+
+      async function copyText(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+
+          return true;
+        } catch (error) {
+          const area = document.createElement("textarea");
+
+          area.value = text;
+          area.style.position = "fixed";
+          area.style.opacity = "0";
+          document.body.appendChild(area);
+          area.select();
+
+          const copied = document.execCommand("copy");
+
+          area.remove();
+
+          return copied;
+        }
+      }
+
+      lock.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        if (PAYLOAD === "") {
+          reveal();
+
+          return;
+        }
+
+        lockButton.disabled = true;
+        lockButton.textContent = OPENING;
+        lockError.textContent = "";
+
+        try {
+          fillCodes(
+            await decryptPayload(normalizePassword(passwordInput.value)),
+          );
+          reveal();
+        } catch (error) {
+          rejectPassword();
+        } finally {
+          lockButton.disabled = false;
+          lockButton.textContent = OPEN;
+        }
+      });
+
+      dice.forEach((die) => {
+        for (let i = 0; i < DIE_CELLS; i += 1) {
+          die.appendChild(document.createElement("i"));
+        }
+
+        setDie(die, Number(die.dataset.n));
+
+        die.addEventListener("animationend", (event) => {
+          if (event.animationName === "rollIn") {
+            die.classList.add("settled");
+          }
+
+          if (event.animationName === "spin") {
+            die.classList.remove("rolling");
+          }
+        });
+
+        die.addEventListener("click", () => {
+          if (!die.classList.contains("settled")) {
+            return;
+          }
+
+          setDie(die, 1 + Math.floor(Math.random() * DIE_FACES));
+          die.classList.remove("rolling");
+          void die.offsetWidth;
+          die.classList.add("rolling");
+        });
+      });
+
+      document.querySelectorAll(".card").forEach((card) => {
+        const reset = () => {
+          card.classList.remove("is-tilting");
+          card.style.setProperty("--rx", "0deg");
+          card.style.setProperty("--ry", "0deg");
+        };
+
+        card.addEventListener("pointermove", (event) => {
+          const rect = card.getBoundingClientRect();
+          const px = (event.clientX - rect.left) / rect.width;
+          const py = (event.clientY - rect.top) / rect.height;
+
+          card.style.setProperty("--ry", `${(px - 0.5) * TILT_Y_DEG}deg`);
+          card.style.setProperty("--rx", `${(0.5 - py) * TILT_X_DEG}deg`);
+          card.classList.add("is-tilting");
+        });
+        card.addEventListener("pointerleave", reset);
+        card.addEventListener("pointercancel", reset);
+      });
+
+      document.querySelectorAll(".code").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const copied = await copyText(button.dataset.code);
+
+          showToast(copied ? "Код скопирован" : "Не получилось скопировать");
+        });
+      });
+
+      window.addEventListener("resize", fitCanvas);
+    </script>
+  </body>
+</html>
